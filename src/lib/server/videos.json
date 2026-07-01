@@ -1,0 +1,4 @@
+{
+	"_comment": "Optional per-video metadata overrides. Key = video folder id. Remove this _comment entry and add your own, e.g. \"beach-sunset\": { \"title\": \"Beach Sunset\", \"description\": \"Shot in 8K\" }",
+	"_comment_keys": ["title", "description"]
+}
