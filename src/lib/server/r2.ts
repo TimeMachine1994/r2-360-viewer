@@ -5,6 +5,7 @@ import {
 	GetObjectCommand,
 	HeadObjectCommand,
 	ListObjectsV2Command,
+	PutObjectCommand,
 	S3Client,
 	UploadPartCommand,
 	type CompletedPart,
@@ -45,6 +46,22 @@ export async function objectExists(key: string): Promise<boolean> {
 		if ((err as { name?: string })?.name === 'NotFound') return false;
 		throw err;
 	}
+}
+
+/** Upload a small object (e.g. a poster image) directly through the server. */
+export async function putObject(
+	key: string,
+	body: Uint8Array,
+	contentType: string
+): Promise<void> {
+	await r2().send(
+		new PutObjectCommand({
+			Bucket: R2.bucket(),
+			Key: key,
+			Body: body,
+			ContentType: contentType
+		})
+	);
 }
 
 /** List every object in the bucket under the given prefix (handles pagination). */

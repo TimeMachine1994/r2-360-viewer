@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import * as THREE from 'three';
+	import { captureVideoFrame } from '$lib/thumbnail';
 
 	let { src, poster = '' }: { src: string; poster?: string } = $props();
 
@@ -209,6 +210,11 @@
 		if (!video) return;
 		video.muted = !video.muted;
 		muted = video.muted;
+	}
+
+	/** Capture the current video frame as a JPEG blob (exposed to parents). */
+	export function captureFrame(): Promise<Blob> {
+		return captureVideoFrame(video);
 	}
 
 	function recenter() {

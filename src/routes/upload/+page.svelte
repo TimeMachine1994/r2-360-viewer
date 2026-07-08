@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { formatBytes } from '$lib/format';
+	import { thumbnailFromFile, uploadPoster } from '$lib/thumbnail';
 
 	const PART_SIZE = 100 * 1024 * 1024; // 100 MB
 	const CONCURRENCY = 3;
@@ -191,6 +192,15 @@
 			item.status = 'done';
 			item.resultId = key.split('/')[1] ?? '';
 			item.message = `Saved to ${done.key}`;
+
+			// Generate a poster thumbnail from the local file (best-effort).
+			try {
+				const blob = await thumbnailFromFile(file);
+				await uploadPoster(item.resultId, blob);
+				item.message += ' · thumbnail added';
+			} catch {
+				item.message += ' · no thumbnail (set one from the player)';
+			}
 		} catch (err) {
 			const wasCancelled = err instanceof Error && err.message === CANCELLED;
 			item.status = wasCancelled ? 'canceled' : 'error';
