@@ -29,12 +29,26 @@ const client = new S3Client({
 	credentials: { accessKeyId, secretAccessKey }
 });
 
+// Comma-separated allowed origins, e.g.
+//   CORS_ALLOWED_ORIGINS="http://localhost:5173,https://your-app.vercel.app"
+const allowedOrigins = (process.env.CORS_ALLOWED_ORIGINS ?? '')
+	.split(',')
+	.map((o) => o.trim().replace(/\/$/, ''))
+	.filter(Boolean);
+
+if (allowedOrigins.length === 0) {
+	console.error('Set CORS_ALLOWED_ORIGINS to a comma-separated list of origins.');
+	process.exit(1);
+}
+
 const CORSRules = [
 	{
-		AllowedOrigins: ['*'],
-		AllowedMethods: ['GET', 'HEAD'],
+		AllowedOrigins: allowedOrigins,
+		// GET/HEAD for playback + downloads; PUT for the multipart uploader.
+		AllowedMethods: ['GET', 'HEAD', 'PUT'],
 		AllowedHeaders: ['*'],
-		ExposeHeaders: ['Content-Length', 'Content-Range', 'Accept-Ranges', 'ETag'],
+		// ETag is required to finalize multipart uploads; range headers for seeking.
+		ExposeHeaders: ['ETag', 'Content-Length', 'Content-Range', 'Accept-Ranges'],
 		MaxAgeSeconds: 3600
 	}
 ];
